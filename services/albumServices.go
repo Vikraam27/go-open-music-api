@@ -49,20 +49,25 @@ func GetAlbumDetailService(id string) (models.Album, error) {
 	}
 }
 
-func UpdateAlbumService(id string, album models.AlbumPayload) error {
+func UpdateAlbumService(id string, album models.AlbumPayload) (int64, error) {
 	db := database.CreateConnection()
 	defer db.Close()
 
 	query := `UPDATE albums SET name=$2, year=$3 WHERE id=$1`
 
-	_, err := db.Exec(query, id, album.Name, album.Year)
+	res, err := db.Exec(query, id, album.Name, album.Year)
 
-	switch err {
-	case sql.ErrNoRows:
-		return exceptions.NewHTTPError(err, 404, "album not found")
-	case nil:
-		return nil
-	default:
-		return exceptions.NewHTTPError(err, 400, "fail to update album")
+	if err != nil {
+		return 0, exceptions.NewHTTPError(err, 400, "fail to update album")
 	}
+
+	rowsAffected, err := res.RowsAffected()
+
+	if err != nil {
+		return 0, exceptions.NewHTTPError(err, 400, "fail to check rows effected")
+	}
+	if rowsAffected == 0 {
+		return 0, exceptions.NewHTTPError(err, 404, "album id not found")
+	}
+	return rowsAffected, nil
 }

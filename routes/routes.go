@@ -62,6 +62,7 @@ func Routes() *mux.Router {
 
 	routes.Handle("/albums", rootHandler(handlers.CreateAlbumHandler)).Methods("POST")
 	routes.Handle("/albums/{id}", rootHandler(handlers.GetAlbumDetailHandler)).Methods("GET")
+	routes.Handle("/albums/{id}", rootHandler(handlers.UpdateAlbumHandler)).Methods("PUT")
 
 	return routes
 }

@@ -1,5 +1,10 @@
 package models
 
+type ResponseWithOutData struct {
+	Status  string `json:"status"`
+	Message string `json:"message"`
+}
+
 type AlbumPayload struct {
 	Name string `json:"name" validate:"required"`
 	Year uint16 `json:"year" validate:"required"`
