@@ -90,3 +90,21 @@ func UpdateAlbumHandler(res http.ResponseWriter, req *http.Request) error {
 	json.NewEncoder(res).Encode(response)
 	return nil
 }
+
+func DeleteAlbumHandler(res http.ResponseWriter, req *http.Request) error {
+	res.Header().Add("Content-type", "application/json")
+	params := mux.Vars(req)
+
+	rowsAffected, err := services.DeleteAlbumService(params["id"])
+	if err != nil {
+		return err
+	}
+	msg := fmt.Sprintf("successfully delete the album, row affected %d", rowsAffected)
+	response := models.ResponseWithOutData{
+		Status:  "success",
+		Message: msg,
+	}
+
+	json.NewEncoder(res).Encode(response)
+	return nil
+}

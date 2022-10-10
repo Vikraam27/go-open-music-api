@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"math/rand"
 	"strconv"
-	"time"
 
 	"github.com/Vikraam27/go-open-music-api/database"
 	"github.com/Vikraam27/go-open-music-api/exceptions"
@@ -15,7 +14,6 @@ import (
 func CreateAlbumService(album models.AlbumPayload) (string, error) {
 	db := database.CreateConnection()
 	defer db.Close()
-	rand.Seed(time.Now().UnixNano())
 
 	id := fmt.Sprintf("album-%v", strconv.Itoa(rand.Intn(9999999)))
 	query := "INSERT INTO albums VALUES ($1, $2, $3) RETURNING id"
@@ -59,6 +57,29 @@ func UpdateAlbumService(id string, album models.AlbumPayload) (int64, error) {
 
 	if err != nil {
 		return 0, exceptions.NewHTTPError(err, 400, "fail to update album")
+	}
+
+	rowsAffected, err := res.RowsAffected()
+
+	if err != nil {
+		return 0, exceptions.NewHTTPError(err, 400, "fail to check rows effected")
+	}
+	if rowsAffected == 0 {
+		return 0, exceptions.NewHTTPError(err, 404, "album id not found")
+	}
+	return rowsAffected, nil
+}
+
+func DeleteAlbumService(id string) (int64, error) {
+	db := database.CreateConnection()
+	defer db.Close()
+
+	query := `DELETE FROM albums WHERE id=$1`
+
+	res, err := db.Exec(query, id)
+
+	if err != nil {
+		return 0, exceptions.NewHTTPError(err, 400, "fail to delete album")
 	}
 
 	rowsAffected, err := res.RowsAffected()

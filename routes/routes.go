@@ -60,9 +60,14 @@ func (fn rootHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 func Routes() *mux.Router {
 	routes := mux.NewRouter()
 
+	// albums
 	routes.Handle("/albums", rootHandler(handlers.CreateAlbumHandler)).Methods("POST")
 	routes.Handle("/albums/{id}", rootHandler(handlers.GetAlbumDetailHandler)).Methods("GET")
 	routes.Handle("/albums/{id}", rootHandler(handlers.UpdateAlbumHandler)).Methods("PUT")
+	routes.Handle("/albums/{id}", rootHandler(handlers.DeleteAlbumHandler)).Methods("DELETE")
+
+	// songs
+	routes.Handle("/songs", rootHandler(handlers.AddSongHandler)).Methods("POST")
 
 	return routes
 }
