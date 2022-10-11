@@ -68,6 +68,10 @@ func Routes() *mux.Router {
 
 	// songs
 	routes.Handle("/songs", rootHandler(handlers.AddSongHandler)).Methods("POST")
+	routes.Handle("/songs", rootHandler(handlers.GetAllSongsHanlder)).Methods("GET")
+	routes.Handle("/songs/{id}", rootHandler(handlers.GetSongByIdHandler)).Methods("GET")
+	routes.Handle("/songs/{id}", rootHandler(handlers.UpdateSongHandler)).Methods("PUT")
+	routes.Handle("/songs/{id}", rootHandler(handlers.DeleteSongHandler)).Methods("DELETE")
 
 	return routes
 }
