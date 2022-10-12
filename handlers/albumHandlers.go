@@ -51,10 +51,21 @@ func GetAlbumDetailHandler(res http.ResponseWriter, req *http.Request) error {
 		return err
 	}
 
+	songs, err := services.GetSongByAlbumId(params["id"])
+
+	if err != nil {
+		return err
+	}
+
 	response := models.GetAlbumDetailResponse{
 		Status: "success",
 		Data: models.GetAlbumDetailData{
-			Album: albumDetails,
+			Album: models.Album{
+				ID:   albumDetails.ID,
+				Name: albumDetails.Name,
+				Year: albumDetails.Year,
+				Song: songs,
+			},
 		},
 	}
 

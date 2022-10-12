@@ -10,9 +10,10 @@ type AlbumPayload struct {
 	Year uint16 `json:"year" validate:"required"`
 }
 type Album struct {
-	ID   string `json:"id"`
-	Name string `json:"name"`
-	Year int    `json:"year"`
+	ID   string       `json:"id"`
+	Name string       `json:"name"`
+	Year int          `json:"year"`
+	Song []MappedSong `json:"songs"`
 }
 
 type CreateAlbumResponse struct {

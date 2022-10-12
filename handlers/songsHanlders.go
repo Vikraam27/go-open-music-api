@@ -45,19 +45,67 @@ func AddSongHandler(res http.ResponseWriter, req *http.Request) error {
 func GetAllSongsHanlder(res http.ResponseWriter, req *http.Request) error {
 	res.Header().Add("Content-type", "application/json")
 
-	songs, err := services.GetAllSongsService()
-	if err != nil {
-		return err
-	}
+	query := req.URL.Query()
 
-	response := models.GetAllSongsResponse{
-		Status: "success",
-		Data: &models.SongsData{
-			Songs: songs,
-		},
+	if query.Get("title") != "" {
+		fmt.Println("excuted")
+		songs, err := services.GetAllSongsByTitleService(query.Get("title"))
+		if err != nil {
+			return err
+		}
+
+		response := models.GetAllSongsResponse{
+			Status: "success",
+			Data: &models.SongsData{
+				Songs: songs,
+			},
+		}
+		json.NewEncoder(res).Encode(response)
+		return err
+	} else if query.Get("performer") != "" {
+		songs, err := services.GetAllSongsByPerformerService(query.Get("performer"))
+		if err != nil {
+			return err
+		}
+
+		response := models.GetAllSongsResponse{
+			Status: "success",
+			Data: &models.SongsData{
+				Songs: songs,
+			},
+		}
+		json.NewEncoder(res).Encode(response)
+		return err
+	} else if (query.Get("title") != "") && (query.Get("performer") != "") {
+		songs, err := services.GetAllSongsByTitleAndPerformerService(query.Get("title"), query.Get("performer"))
+		if err != nil {
+			return err
+		}
+
+		response := models.GetAllSongsResponse{
+			Status: "success",
+			Data: &models.SongsData{
+				Songs: songs,
+			},
+		}
+		json.NewEncoder(res).Encode(response)
+		return err
+	} else {
+		songs, err := services.GetAllSongsService()
+		if err != nil {
+			return err
+		}
+
+		response := models.GetAllSongsResponse{
+			Status: "success",
+			Data: &models.SongsData{
+				Songs: songs,
+			},
+		}
+		json.NewEncoder(res).Encode(response)
+		return err
+
 	}
-	json.NewEncoder(res).Encode(response)
-	return err
 }
 
 func GetSongByIdHandler(res http.ResponseWriter, req *http.Request) error {

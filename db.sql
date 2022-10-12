@@ -11,5 +11,5 @@ CREATE TABLE songs (
     "genre"  TEXT NOT NULL,
     "performer"  TEXT NOT NULL,
     "duration" INT NOT NULL,
-    "albumId" VARCHAR(30) NULL REFERENCES albums(id) ON DELETE CASCADE
+    "album_id" VARCHAR(30) NULL REFERENCES albums(id) ON DELETE CASCADE
 );

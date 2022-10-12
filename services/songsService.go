@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"math/rand"
 	"strconv"
+	"strings"
 
 	"github.com/Vikraam27/go-open-music-api/database"
 	"github.com/Vikraam27/go-open-music-api/exceptions"
@@ -16,9 +17,9 @@ func AddSongService(song models.SongPayload) (string, error) {
 	defer db.Close()
 
 	id := fmt.Sprintf("song-%v", strconv.Itoa(rand.Intn(9999999)))
-	query := "INSERT INTO songs (id, title, year, performer, genre, duration) VALUES ($1, $2, $3, $4, $5, $6) RETURNING id"
+	query := "INSERT INTO songs VALUES ($1, $2, $3, $4, $5, $6, $7) RETURNING id"
 	var songId string
-	err := db.QueryRow(query, id, song.Title, song.Year, song.Performer, song.Genre, song.Duration).Scan(&songId)
+	err := db.QueryRow(query, id, song.Title, song.Year, song.Genre, song.Performer, song.Duration, song.AlbumId).Scan(&songId)
 
 	if err != nil {
 		return "", fmt.Errorf("fail to add song : %v", err)
@@ -61,10 +62,10 @@ func GetSongByIdService(id string) (models.Song, error) {
 
 	var song models.Song
 
-	query := "SELECT id, title, year, genre, performer, duration FROM songs WHERE id=$1"
+	query := "SELECT * FROM songs WHERE id=$1"
 
 	row := db.QueryRow(query, id)
-	err := row.Scan(&song.Id, &song.Title, &song.Year, &song.Genre, &song.Performer, &song.Duration)
+	err := row.Scan(&song.Id, &song.Title, &song.Year, &song.Genre, &song.Performer, &song.Duration, &song.AlbumId)
 	switch err {
 	case sql.ErrNoRows:
 		return song, exceptions.NewHTTPError(err, 404, "song not found")
@@ -117,4 +118,120 @@ func DeleteSongService(id string) (int64, error) {
 		return 0, exceptions.NewHTTPError(err, 404, "song id not found")
 	}
 	return rowsAffected, nil
+}
+
+func GetSongByAlbumId(id string) ([]models.MappedSong, error) {
+	db := database.CreateConnection()
+	defer db.Close()
+
+	var songs []models.MappedSong
+	songs = make([]models.MappedSong, 0, 1)
+
+	query := "SELECT id, title, performer FROM songs WHERE album_id=$1"
+
+	rows, err := db.Query(query, id)
+
+	if err != nil {
+		return songs, err
+	}
+	defer rows.Close()
+
+	for rows.Next() {
+		var song models.MappedSong
+
+		err = rows.Scan(&song.Id, &song.Title, &song.Performer)
+		if err != nil {
+			return songs, err
+		}
+		songs = append(songs, song)
+	}
+
+	return songs, err
+}
+
+func GetAllSongsByTitleService(title string) ([]models.MappedSong, error) {
+	db := database.CreateConnection()
+	defer db.Close()
+
+	var songs []models.MappedSong
+	songs = make([]models.MappedSong, 0, 1)
+
+	query := "SELECT id, title, performer FROM songs WHERE LOWER(title) LIKE '%' || $1 || '%'"
+
+	rows, err := db.Query(query, strings.ToLower(title))
+
+	if err != nil {
+		return songs, err
+	}
+	defer rows.Close()
+
+	for rows.Next() {
+		var song models.MappedSong
+
+		err = rows.Scan(&song.Id, &song.Title, &song.Performer)
+		if err != nil {
+			return songs, err
+		}
+		songs = append(songs, song)
+	}
+
+	return songs, err
+}
+
+func GetAllSongsByPerformerService(performer string) ([]models.MappedSong, error) {
+	db := database.CreateConnection()
+	defer db.Close()
+
+	var songs []models.MappedSong
+	songs = make([]models.MappedSong, 0, 1)
+
+	query := "SELECT id, title, performer FROM songs WHERE LOWER(performer) LIKE '%' || $1 || '%'"
+
+	rows, err := db.Query(query, strings.ToLower(performer))
+
+	if err != nil {
+		return songs, err
+	}
+	defer rows.Close()
+
+	for rows.Next() {
+		var song models.MappedSong
+
+		err = rows.Scan(&song.Id, &song.Title, &song.Performer)
+		if err != nil {
+			return songs, err
+		}
+		songs = append(songs, song)
+	}
+
+	return songs, err
+}
+
+func GetAllSongsByTitleAndPerformerService(title string, performer string) ([]models.MappedSong, error) {
+	db := database.CreateConnection()
+	defer db.Close()
+
+	var songs []models.MappedSong
+	songs = make([]models.MappedSong, 0, 1)
+
+	query := "SELECT id, title, performer FROM songs WHERE LOWER(title) LIKE '%' || $1 || '%' AND LOWER(performer) LIKE '%' || $2 || '%'"
+
+	rows, err := db.Query(query, strings.ToLower(title), strings.ToLower(performer))
+
+	if err != nil {
+		return songs, err
+	}
+	defer rows.Close()
+
+	for rows.Next() {
+		var song models.MappedSong
+
+		err = rows.Scan(&song.Id, &song.Title, &song.Performer)
+		if err != nil {
+			return songs, err
+		}
+		songs = append(songs, song)
+	}
+
+	return songs, err
 }

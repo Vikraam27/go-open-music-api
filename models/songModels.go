@@ -6,6 +6,7 @@ type SongPayload struct {
 	Genre     string `json:"genre" validate:"required"`
 	Performer string `json:"performer" validate:"required"`
 	Duration  uint16 `json:"duration" validate:"required"`
+	AlbumId   string `json:"albumId"`
 }
 
 type AddSongResponse struct {
@@ -40,6 +41,7 @@ type Song struct {
 	Genre     string `json:"genre"`
 	Performer string `json:"performer"`
 	Duration  uint16 `json:"duration"`
+	AlbumId   string `json:"albumId" validate:"required"`
 }
 
 type GetSongByIdResponse struct {
