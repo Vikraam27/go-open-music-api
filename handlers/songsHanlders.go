@@ -46,10 +46,8 @@ func GetAllSongsHanlder(res http.ResponseWriter, req *http.Request) error {
 	res.Header().Add("Content-type", "application/json")
 
 	query := req.URL.Query()
-
-	if query.Get("title") != "" {
-		fmt.Println("excuted")
-		songs, err := services.GetAllSongsByTitleService(query.Get("title"))
+	if (query.Get("title") != "") && (query.Get("performer") != "") {
+		songs, err := services.GetAllSongsByTitleAndPerformerService(query.Get("title"), query.Get("performer"))
 		if err != nil {
 			return err
 		}
@@ -76,8 +74,8 @@ func GetAllSongsHanlder(res http.ResponseWriter, req *http.Request) error {
 		}
 		json.NewEncoder(res).Encode(response)
 		return err
-	} else if (query.Get("title") != "") && (query.Get("performer") != "") {
-		songs, err := services.GetAllSongsByTitleAndPerformerService(query.Get("title"), query.Get("performer"))
+	} else if query.Get("title") != "" {
+		songs, err := services.GetAllSongsByTitleService(query.Get("title"))
 		if err != nil {
 			return err
 		}
